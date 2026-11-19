@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const config: NextConfig = {
+  allowedDevOrigins: process.env.WISHVOW_DEV_ORIGINS?.split(",")
+    .map((host) => host.trim())
+    .filter(Boolean),
   experimental: { serverActions: { bodySizeLimit: "4300kb" } },
   async headers() {
     return [
