@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1795025543047,
+      "tag": "0000_tough_wonder_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795027122659,
+      "tag": "0001_phase2_wishes",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795028944954,
+      "tag": "0002_phase3_commitments",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795030360156,
+      "tag": "0003_phase5_invitations",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795031728563,
+      "tag": "0004_phase4_commitment_dashboard",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795033850407,
+      "tag": "0005_phase6_event_types",
+      "breakpoints": true
+    }
+  ]
+}

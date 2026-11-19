@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf6ee;
+  --foreground: #282720;
+  --card: #fffdf8;
+  --muted: #f1e9dc;
+  --muted-foreground: #61574d;
+  --primary: #69394b;
+  --primary-hover: #532b3b;
+  --primary-foreground: #fff8f5;
+  --border: #c6b7a6;
+  --destructive: #932c34;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --font-serif: Georgia, "Times New Roman", serif;
+  --font-sans: system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-4 outline-primary;
+  }
+  h1,
+  h2 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  .shell {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+  }
+  .panel {
+    @apply rounded-2xl border border-border bg-card p-5 sm:p-7;
+  }
+  .control {
+    @apply w-full min-w-0 rounded-lg border border-border bg-card px-3 py-2.5 text-base;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0s !important;
+  }
+}
