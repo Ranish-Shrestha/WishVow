@@ -1,5 +1,23 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+
+const title = "Wedding & Event Wishlists | WishVow";
+const description =
+  "Create a gift wishlist for your wedding, birthday, or celebration. Share it with guests and manage gift commitments, invitations, and RSVPs in WishVow.";
+
+export const metadata: Metadata = {
+  title: { absolute: title },
+  description,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "WishVow",
+    title,
+    description,
+  },
+};
 
 export default function Home() {
   return (
@@ -12,8 +30,9 @@ export default function Home() {
           Make their wishes <em className="text-primary">come true.</em>
         </h1>
         <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Create your event and give everyone a place on the wishlist, with a
-          shared section for wishes you dream up together.
+          Create a gift wishlist for your event, with shared wishes and space
+          for each person’s picks. Share it with guests and manage invitations
+          and RSVPs in one place.
         </p>
         <div className="mt-7 flex flex-wrap gap-3">
           <Button asChild>

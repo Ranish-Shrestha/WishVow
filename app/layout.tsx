@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { PublicPageLayout } from "@/components/ui/public-page-layout";
+import { siteOrigin } from "@/lib/site-url";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteOrigin),
   title: { default: "WishVow", template: "%s | WishVow" },
   description: "Create a wishlist for your wedding, birthday, or celebration.",
 };

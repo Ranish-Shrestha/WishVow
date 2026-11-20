@@ -22,7 +22,15 @@ const config: NextConfig = {
       },
       {
         source: "/dashboard/:path*",
-        headers: [{ key: "Cache-Control", value: "private, no-store" }],
+        headers: [
+          { key: "Cache-Control", value: "private, no-store" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+      {
+        source:
+          "/:accountPage(sign-in|sign-up|forgot-password|verify-host-email)",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
       {
         source: "/:guestPrefix(e|guest|invite)/:path*",
