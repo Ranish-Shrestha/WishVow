@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { HostPageHeader } from "@/components/host/host-page-header";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { WishForm } from "@/components/wishlist/wish-form";
@@ -28,14 +28,14 @@ export default async function EditWish({
   const base = `/dashboard/events/${eventId}/wishes`;
 
   return (
-    <section className="mx-auto max-w-3xl space-y-6 pt-8">
-      <Link
-        href={base}
-        className="text-sm font-semibold text-primary underline"
-      >
-        Back to wishlist
-      </Link>
-      <h1 className="text-4xl sm:text-5xl">Edit wish</h1>
+    <section className="mx-auto max-w-3xl space-y-6">
+      <HostPageHeader
+        title="Edit wish"
+        ancestors={[
+          { href: `/dashboard/events/${eventId}`, label: result.event.title },
+        ]}
+        back={{ href: base, label: "Back to wishlist", text: "Wishlist" }}
+      />
       <WishForm
         participants={result.participants}
         wish={fields}

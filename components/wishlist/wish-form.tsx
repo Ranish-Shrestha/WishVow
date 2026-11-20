@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { FormFeedback, type FormState } from "@/components/ui/form-feedback";
+import { InfoPopover } from "@/components/ui/info-popover";
 import type { wishes } from "@/lib/db/schema";
 import { amountInput } from "@/lib/utils/money";
 import {
@@ -20,6 +21,86 @@ import {
 } from "@/lib/validation/wishes";
 
 type EditableWish = Omit<typeof wishes.$inferSelect, "imageKey">;
+type HelpTopic = "type" | "category" | "amounts" | "visibility";
+type HelpOption = [label: string, explanation: string];
+
+const wishTypeHelp: Record<WishType, string> = {
+  physical: "Reserve an item, such as a tea set.",
+  experience: "Reserve an experience, such as a cooking class.",
+  group_fund:
+    "Pledge an amount toward a shared goal. WishVow tracks pledges without collecting payments.",
+  service: "Offer to do a specific task, such as taking photos.",
+  open_wish: "Suggest their own way to help or give.",
+};
+
+const categoryExamples: Record<(typeof wishCategories)[number][0], string> = {
+  home: "Cookware, bedding, or furniture.",
+  travel: "Flights, hotel stays, or luggage.",
+  celebration: "Cake, flowers, or decorations.",
+  experiences: "Classes, concerts, or spa visits.",
+  services: "Photography, setup help, or pet sitting.",
+  other: "Wishes that don’t fit the other categories.",
+};
+
+const reservationAmounts: HelpOption[] = [
+  [
+    "Quantity",
+    "The total number of items or spots guests can reserve. Leave it blank for one.",
+  ],
+  [
+    "Estimated price per item",
+    "An optional guide to what one item or experience costs.",
+  ],
+  ["Currency code", "The currency of the estimate, such as CAD or USD."],
+];
+
+const amountHelp: Record<WishType, HelpOption[]> = {
+  physical: reservationAmounts,
+  experience: reservationAmounts,
+  group_fund: [
+    ["Fund goal", "The total amount guests can pledge toward the wish."],
+    ["Minimum pledge", "An optional minimum amount for each pledge."],
+    [
+      "Currency code",
+      "The currency of the goal and pledges, such as CAD or USD.",
+    ],
+  ],
+  service: [
+    ["Helper slots", "How many guests you need. Leave it blank for no limit."],
+  ],
+  open_wish: [
+    [
+      "Quantity",
+      "The number of guest promises you can accept. Leave it blank for one.",
+    ],
+    [
+      "Allow multiple promises",
+      "With a blank quantity, turn this on to accept any number of promises.",
+    ],
+  ],
+};
+
+function WishOptionsHelp({
+  description,
+  options,
+}: {
+  description: string;
+  options: HelpOption[];
+}) {
+  return (
+    <>
+      <p>{description}</p>
+      <dl className="space-y-1.5">
+        {options.map(([label, example]) => (
+          <div key={label}>
+            <dt className="inline font-semibold text-foreground">{label}. </dt>
+            <dd className="inline">{example}</dd>
+          </div>
+        ))}
+      </dl>
+    </>
+  );
+}
 
 export function WishForm({
   action,
@@ -35,7 +116,15 @@ export function WishForm({
   const [state, dispatch, pending] = useActionState(action, {});
   const [type, setType] = useState<WishType>(wish?.type ?? "physical");
   const [fileError, setFileError] = useState("");
+  const [openHelp, setOpenHelp] = useState<HelpTopic | null>(null);
   const currency = wish?.currency ?? "CAD";
+
+  function showHelp(topic: HelpTopic, open: boolean) {
+    setOpenHelp((current) => {
+      if (open) return topic;
+      return current === topic ? null : current;
+    });
+  }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -63,7 +152,24 @@ export function WishForm({
           />
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field id="type" label="Wish type" state={state}>
+          <Field
+            id="type"
+            label="Wish type"
+            state={state}
+            help={{
+              open: openHelp === "type",
+              onOpenChange: (open) => showHelp("type", open),
+              content: (
+                <WishOptionsHelp
+                  description="Wish type controls what guests can do."
+                  options={wishTypes.map(([key, label]) => [
+                    label,
+                    wishTypeHelp[key],
+                  ])}
+                />
+              ),
+            }}
+          >
             <select
               className="control"
               name="type"
@@ -77,7 +183,24 @@ export function WishForm({
               ))}
             </select>
           </Field>
-          <Field id="category" label="Category" state={state}>
+          <Field
+            id="category"
+            label="Category"
+            state={state}
+            help={{
+              open: openHelp === "category",
+              onOpenChange: (open) => showHelp("category", open),
+              content: (
+                <WishOptionsHelp
+                  description="Categories help guests filter the wishlist."
+                  options={wishCategories.map(([key, label]) => [
+                    label,
+                    categoryExamples[key],
+                  ])}
+                />
+              ),
+            }}
+          >
             <select
               className="control"
               name="category"
@@ -163,7 +286,24 @@ export function WishForm({
         </div>
       </section>
       <section className="panel space-y-5">
-        <h2 className="text-2xl">Quantity and amounts</h2>
+        <div className="relative flex items-center gap-1">
+          <h2 className="text-2xl">Quantity and amounts</h2>
+          <InfoPopover
+            id="quantity-and-amounts"
+            label="Quantity and amounts"
+            open={openHelp === "amounts"}
+            onOpenChange={(open) => showHelp("amounts", open)}
+          >
+            <WishOptionsHelp
+              description={
+                type === "group_fund"
+                  ? "WishVow tracks pledges without collecting payments."
+                  : "These fields set how many guests can help or how much a gift might cost."
+              }
+              options={amountHelp[type]}
+            />
+          </InfoPopover>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
           {type !== "group_fund" && (
             <Field
@@ -271,7 +411,29 @@ export function WishForm({
         )}
       </section>
       <section className="panel space-y-5">
-        <h2 className="text-2xl">Image and visibility</h2>
+        <div className="relative flex items-center gap-1">
+          <h2 className="text-2xl">Image and visibility</h2>
+          <InfoPopover
+            id="image-and-visibility"
+            label="Image and visibility"
+            open={openHelp === "visibility"}
+            onOpenChange={(open) => showHelp("visibility", open)}
+          >
+            <WishOptionsHelp
+              description="Choose what guests see on the published wishlist."
+              options={[
+                [
+                  "Wish image",
+                  "An optional photo to help guests recognize the wish. You can replace or remove it when editing.",
+                ],
+                [
+                  "Guest visibility",
+                  "Uncheck the box to keep the wish in your dashboard and hide it from guests.",
+                ],
+              ]}
+            />
+          </InfoPopover>
+        </div>
         {imageUrl && (
           <div className="space-y-2">
             <a

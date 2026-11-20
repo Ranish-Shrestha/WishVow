@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HostPageHeader } from "@/components/host/host-page-header";
 import { notFound } from "next/navigation";
 import { LifecycleControls } from "@/components/event/lifecycle-controls";
 import { ParticipantForm } from "@/components/event/participant-form";
@@ -25,64 +26,89 @@ export default async function EventOverview({
     event.privacy === "passcode" ? "Passcode protected" : "Unlisted link";
 
   return (
-    <div className="space-y-6 pt-8">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="mb-2 text-sm font-semibold text-primary capitalize">
-            {event.status} · {privacy}
-          </p>
-          <h1 className="text-4xl break-words sm:text-5xl">{event.title}</h1>
-          <p className="mt-3 break-words text-muted-foreground">
-            {[
-              eventTypeLabels[event.eventType],
-              event.eventDate,
-              event.locationText,
-            ]
-              .filter(Boolean)
-              .join(" · ")}
-          </p>
-        </div>
-        <Button asChild>
-          <Link href={`/dashboard/events/${event.id}/wishes`}>
-            Manage wishlist
-          </Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href={"/dashboard/events/" + event.id + "/invitations"}>
-            Invitations &amp; RSVPs
-          </Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href={"/dashboard/events/" + event.id + "/commitments"}>
-            Commitments
-          </Link>
-        </Button>
-        {!archived && (
-          <Button asChild variant="outline">
-            <Link href={`/dashboard/events/${event.id}/edit`}>Edit event</Link>
-          </Button>
-        )}
-      </header>
+    <div className="space-y-6">
+      <HostPageHeader
+        title={event.title}
+        back={{
+          href: "/dashboard",
+          label: "Back to my events",
+          text: "My events",
+        }}
+        description={
+          <>
+            <p className="text-sm font-semibold text-primary capitalize">
+              {event.status} · {privacy}
+            </p>
+            <p>
+              {[
+                eventTypeLabels[event.eventType],
+                event.eventDate,
+                event.locationText,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          </>
+        }
+        actions={
+          <>
+            <Button asChild>
+              <Link href={`/dashboard/events/${event.id}/wishes`}>
+                Manage wishlist
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href={"/dashboard/events/" + event.id + "/invitations"}>
+                Invitations &amp; RSVPs
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href={"/dashboard/events/" + event.id + "/commitments"}>
+                Commitments
+              </Link>
+            </Button>
+            {!archived && (
+              <Button asChild variant="outline">
+                <Link href={`/dashboard/events/${event.id}/edit`}>
+                  Edit event
+                </Link>
+              </Button>
+            )}
+          </>
+        }
+      />
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <section className="panel space-y-4">
           <h2 className="text-2xl">Wishlist owners</h2>
           <p className="rounded-lg bg-muted p-3 text-sm">
             <strong>Shared</strong> · For everyone on the event
           </p>
-          {participants.map((participant) =>
-            archived ? (
-              <p key={participant.id} className="break-words">
-                {participant.displayName} · {participant.roleLabel}
-              </p>
-            ) : (
-              <ParticipantForm
-                key={participant.id}
-                eventId={event.id}
-                participant={participant}
-              />
-            ),
+          {participants.length > 0 && (
+            <ul aria-label="Participants" className="divide-y divide-border">
+              {participants.map((participant) => (
+                <li key={participant.id} className="py-1">
+                  {archived ? (
+                    <div className="px-2 py-2 wrap-anywhere">
+                      <p className="font-semibold">{participant.displayName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {participant.roleLabel}
+                      </p>
+                    </div>
+                  ) : (
+                    <ParticipantForm
+                      eventId={event.id}
+                      participant={participant}
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
           )}
-          {!archived && <ParticipantForm eventId={event.id} />}
+          {!archived && (
+            <div className="border-t border-border pt-2">
+              <ParticipantForm eventId={event.id} />
+            </div>
+          )}
         </section>
         <aside className="space-y-5">
           <section className="panel space-y-4">

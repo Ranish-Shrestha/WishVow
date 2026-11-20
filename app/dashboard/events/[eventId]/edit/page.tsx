@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { EventForm } from "@/components/event/event-form";
+import { HostPageHeader } from "@/components/host/host-page-header";
 import { requireHost } from "@/lib/auth";
 import { getEvent } from "@/lib/db/events";
 import { eventIdSchema, eventTimeZones } from "@/lib/validation/events";
@@ -28,8 +29,15 @@ export default async function EditEvent({
     surpriseMode: event.surpriseMode,
   };
   return (
-    <section className="mx-auto max-w-3xl space-y-6 pt-8">
-      <h1 className="text-4xl sm:text-5xl">Edit event</h1>
+    <section className="mx-auto max-w-3xl space-y-6">
+      <HostPageHeader
+        title="Edit event"
+        back={{
+          href: `/dashboard/events/${eventId}`,
+          label: "Back to event",
+          text: event.title,
+        }}
+      />
       <EventForm
         event={defaults}
         canSetPrivacy={role === "owner"}

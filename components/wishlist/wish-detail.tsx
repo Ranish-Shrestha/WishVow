@@ -21,18 +21,22 @@ export function WishDetail({
 }: {
   event: NonNullable<Awaited<ReturnType<typeof getGuestEvent>>>;
   wish: GuestWish;
-  backPath: string;
+  backPath?: string;
   photoPath: string;
   children?: ReactNode;
 }) {
   return (
-    <section className="shell space-y-6 py-10 sm:py-14">
-      <Link
-        href={backPath + "#wishlist"}
-        className="text-sm font-semibold text-primary underline"
-      >
-        Back to wishlist
-      </Link>
+    <section
+      className={backPath ? "shell space-y-6 py-10 sm:py-14" : undefined}
+    >
+      {backPath && (
+        <Link
+          href={backPath + "#wishlist"}
+          className="text-sm font-semibold text-primary underline"
+        >
+          Back to wishlist
+        </Link>
+      )}
       <article
         className={`grid items-start gap-7 ${wish.hasImage ? "md:grid-cols-2" : "max-w-3xl"}`}
       >

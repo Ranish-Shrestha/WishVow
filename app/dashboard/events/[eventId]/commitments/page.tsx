@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HostPageHeader } from "@/components/host/host-page-header";
 import { notFound } from "next/navigation";
 import { RevealGiver } from "@/components/host/reveal-giver";
 import { CommitmentControls } from "@/components/host/commitment-controls";
@@ -90,17 +91,11 @@ export default async function CommitmentsPage({
   });
 
   return (
-    <section className="space-y-6 pt-8">
-      <header className="space-y-3">
-        <Link
-          href={eventPath}
-          className="text-sm font-semibold text-primary underline"
-        >
-          Back to event
-        </Link>
-        <h1 className="text-4xl sm:text-5xl">Commitments</h1>
-        <p className="break-words text-muted-foreground">{event.title}</p>
-      </header>
+    <section className="space-y-6">
+      <HostPageHeader
+        title="Commitments"
+        back={{ href: eventPath, label: "Back to event", text: event.title }}
+      />
       {event.surpriseMode && (
         <p className="rounded-lg bg-muted p-4 text-sm">
           Surprise mode hides guests’ names, email addresses, and messages until

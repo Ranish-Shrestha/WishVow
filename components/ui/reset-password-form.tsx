@@ -5,16 +5,26 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
 import { authClient } from "@/lib/auth/client";
-import { passwordConfirmationSchema } from "@/lib/validation/auth";
+import {
+  minimumPasswordLength,
+  passwordConfirmationSchema,
+} from "@/lib/validation/auth";
 import { Button } from "./button";
 import { Field } from "./field";
 import { FormFeedback, type FormState } from "./form-feedback";
 import { PasswordInput } from "./password-input";
+import { usePasswordConfirmation } from "./use-password-confirmation";
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const router = useRouter();
   const [state, setState] = useState<FormState>({});
   const [pending, setPending] = useState(false);
+  const {
+    checkPasswords,
+    clearPasswordMismatch,
+    passwordHint,
+    confirmationState,
+  } = usePasswordConfirmation(state, setState);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -27,6 +37,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       });
       return;
     }
+    clearPasswordMismatch();
     setPending(true);
     setState({});
     try {
@@ -50,23 +61,32 @@ export function ResetPasswordForm({ token }: { token: string }) {
   }
 
   return (
-    <form className="space-y-4" method="post" onSubmit={submit}>
+    <form
+      className="space-y-4"
+      method="post"
+      onSubmit={submit}
+      onInput={checkPasswords}
+    >
       <Field
         id="password"
         label="New password"
-        hint="Use at least 12 characters."
+        hint={passwordHint}
         state={state}
       >
         <PasswordInput
           name="password"
           visibilityLabel="new password"
           required
-          minLength={12}
+          minLength={minimumPasswordLength}
           maxLength={128}
           autoComplete="new-password"
         />
       </Field>
-      <Field id="confirmPassword" label="Confirm new password" state={state}>
+      <Field
+        id="confirmPassword"
+        label="Confirm new password"
+        state={confirmationState}
+      >
         <PasswordInput
           name="confirmPassword"
           visibilityLabel="new password confirmation"

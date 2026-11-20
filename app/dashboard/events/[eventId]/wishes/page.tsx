@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HostPageHeader } from "@/components/host/host-page-header";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { WishControls } from "@/components/wishlist/wish-controls";
@@ -35,26 +36,18 @@ export default async function HostWishlist({
   const editable = access.event.status !== "archived";
 
   return (
-    <section className="space-y-6 pt-8">
-      <Link
-        href={base}
-        className="text-sm font-semibold text-primary underline"
-      >
-        Back to event
-      </Link>
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-4xl sm:text-5xl">Manage wishlist</h1>
-          <p className="mt-2 break-words text-muted-foreground">
-            {access.event.title}
-          </p>
-        </div>
-        {editable && (
-          <Button asChild>
-            <Link href={`${base}/wishes/new`}>New wish</Link>
-          </Button>
-        )}
-      </header>
+    <section className="space-y-6">
+      <HostPageHeader
+        title="Manage wishlist"
+        back={{ href: base, label: "Back to event", text: access.event.title }}
+        actions={
+          editable && (
+            <Button asChild>
+              <Link href={`${base}/wishes/new`}>New wish</Link>
+            </Button>
+          )
+        }
+      />
       {!active.length && (
         <p className="panel text-muted-foreground">
           There are no active wishes yet.

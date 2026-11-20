@@ -28,8 +28,14 @@ export function SignOut() {
 
   return (
     <div className="space-y-1">
-      <Button variant="outline" onClick={signOut} disabled={pending}>
-        Sign out
+      <Button
+        type="button"
+        variant="ghost"
+        className="w-full justify-start rounded-md px-3 text-left focus-visible:outline-offset-[-2px]"
+        onClick={signOut}
+        disabled={pending}
+      >
+        {pending ? "Signing out…" : "Sign out"}
       </Button>
       <FormFeedback state={state} />
     </div>

@@ -7,8 +7,6 @@ import { z } from "zod";
 import { authClient } from "@/lib/auth/client";
 import {
   minimumPasswordLength,
-  passwordLengthHint,
-  passwordMismatchMessage,
   signInSchema,
   signUpSchema,
 } from "@/lib/validation/auth";
@@ -16,6 +14,7 @@ import { Button } from "./button";
 import { Field } from "./field";
 import { FormFeedback, type FormState } from "./form-feedback";
 import { PasswordInput } from "./password-input";
+import { usePasswordConfirmation } from "./use-password-confirmation";
 
 const invalidCredentialsMessage = "Invalid email or password.";
 
@@ -29,35 +28,12 @@ export function AuthForm({
   const router = useRouter();
   const [state, setState] = useState<FormState>({});
   const [pending, setPending] = useState(false);
-  const [passwordMismatch, setPasswordMismatch] = useState(false);
-  const [passwordMeetsMinimum, setPasswordMeetsMinimum] = useState(false);
-
-  function checkPasswords(event: FormEvent<HTMLFormElement>) {
-    const edited = event.target;
-    if (
-      !(edited instanceof HTMLInputElement) ||
-      (edited.name !== "password" && edited.name !== "confirmPassword")
-    ) {
-      return;
-    }
-    const form = new FormData(event.currentTarget);
-    const password = form.get("password");
-    const confirmation = form.get("confirmPassword");
-    setPasswordMeetsMinimum(
-      typeof password === "string" && password.length >= minimumPasswordLength,
-    );
-    setPasswordMismatch(Boolean(confirmation) && confirmation !== password);
-    setState((current) => {
-      if (!current.fields?.confirmPassword) return current;
-      const fields: NonNullable<FormState["fields"]> = {
-        ...current.fields,
-        confirmPassword: undefined,
-      };
-      return Object.values(fields).some((errors) => errors?.length)
-        ? { ...current, fields }
-        : {};
-    });
-  }
+  const {
+    checkPasswords,
+    clearPasswordMismatch,
+    passwordHint,
+    confirmationState,
+  } = usePasswordConfirmation(state, setState);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -74,7 +50,7 @@ export function AuthForm({
       );
       return;
     }
-    setPasswordMismatch(false);
+    clearPasswordMismatch();
     setPending(true);
     setState({});
     try {
@@ -156,11 +132,7 @@ export function AuthForm({
             id="password"
             label="Password"
             state={state}
-            hint={
-              registering && !passwordMeetsMinimum
-                ? passwordLengthHint
-                : undefined
-            }
+            hint={registering ? passwordHint : undefined}
           >
             <PasswordInput
               name="password"
@@ -174,11 +146,7 @@ export function AuthForm({
             <Field
               id="confirmPassword"
               label="Confirm password"
-              state={
-                passwordMismatch
-                  ? { fields: { confirmPassword: [passwordMismatchMessage] } }
-                  : state
-              }
+              state={confirmationState}
             >
               <PasswordInput
                 name="confirmPassword"

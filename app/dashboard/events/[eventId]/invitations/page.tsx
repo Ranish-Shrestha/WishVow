@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { HostPageHeader } from "@/components/host/host-page-header";
 import { notFound } from "next/navigation";
 import { InvitationDesignForm } from "@/components/invitation/design-form";
 import {
@@ -52,17 +52,11 @@ export default async function InvitationsPage({
   const auth = getAuthConfig();
 
   return (
-    <div className="space-y-8 pt-8">
-      <header className="space-y-3">
-        <Link
-          href={eventPath}
-          className="text-sm font-semibold text-primary underline"
-        >
-          Back to event
-        </Link>
-        <h1 className="text-4xl sm:text-5xl">Invitations &amp; RSVPs</h1>
-        <p className="break-words text-muted-foreground">{event.title}</p>
-      </header>
+    <div className="space-y-8">
+      <HostPageHeader
+        title="Invitations & RSVPs"
+        back={{ href: eventPath, label: "Back to event", text: event.title }}
+      />
 
       <div className="grid items-start gap-5 lg:grid-cols-2">
         {editable && (

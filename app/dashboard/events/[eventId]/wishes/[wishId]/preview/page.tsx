@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { z } from "zod";
+import { HostPageHeader } from "@/components/host/host-page-header";
 import { WishDetail } from "@/components/wishlist/wish-detail";
 import { requireHost } from "@/lib/auth";
 import { getDb } from "@/lib/db";
@@ -26,16 +27,29 @@ export default async function WishPreview({
   const base = `/dashboard/events/${eventId}/wishes`;
 
   return (
-    <WishDetail
-      event={{
-        ...event,
-        type: event.eventType,
-        date: event.eventDate,
-        location: event.locationText,
-      }}
-      wish={wish}
-      backPath={`${base}/preview`}
-      photoPath={`${base}/${wishId}`}
-    />
+    <div className="space-y-6">
+      <HostPageHeader
+        title="Private host preview"
+        ancestors={[
+          { href: `/dashboard/events/${eventId}`, label: event.title },
+        ]}
+        back={{
+          href: `${base}/preview#wishlist`,
+          label: "Back to wishlist",
+          text: "Wishlist preview",
+        }}
+        preview
+      />
+      <WishDetail
+        event={{
+          ...event,
+          type: event.eventType,
+          date: event.eventDate,
+          location: event.locationText,
+        }}
+        wish={wish}
+        photoPath={`${base}/${wishId}`}
+      />
+    </div>
   );
 }

@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { FormFeedback, type FormState } from "@/components/ui/form-feedback";
+import { timeZoneOptions } from "@/lib/event-time-zones";
 import { eventTypeLabels, eventTypes } from "@/lib/event-types";
 import type { EventDetails, PrivacyInput } from "@/lib/validation/events";
 
@@ -28,9 +29,9 @@ export function EventForm({
   const [state, run, pending] = useActionState(action, {});
   const [privacy, setPrivacy] = useState(event?.privacy ?? "unlisted");
   const timeZone = event?.timezone ?? "America/Toronto";
-  const zoneOptions = timeZones.includes(timeZone)
-    ? timeZones
-    : [timeZone, ...timeZones];
+  const zoneOptions = timeZoneOptions(
+    timeZones.includes(timeZone) ? timeZones : [timeZone, ...timeZones],
+  );
 
   function submit(form: FormEvent<HTMLFormElement>) {
     form.preventDefault();
@@ -82,9 +83,9 @@ export function EventForm({
               required
               defaultValue={timeZone}
             >
-              {zoneOptions.map((zone) => (
-                <option key={zone} value={zone}>
-                  {zone.replaceAll("_", " ").replaceAll("/", " / ")}
+              {zoneOptions.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
                 </option>
               ))}
             </select>

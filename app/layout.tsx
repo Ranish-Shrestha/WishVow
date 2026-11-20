@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { HostDashboardLink } from "@/components/ui/host-dashboard-link";
+import { PublicPageLayout } from "@/components/ui/public-page-layout";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,23 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           Skip to content
         </a>
-        <header className="border-b border-border">
-          <nav
-            aria-label="Main navigation"
-            className="shell flex min-h-17 items-center justify-between gap-4"
-          >
-            <Link
-              href="/"
-              className="font-serif text-2xl font-bold tracking-tight text-primary"
-            >
-              WishVow
-            </Link>
-            <HostDashboardLink />
-          </nav>
-        </header>
-        <main id="main" className="flex-1">
-          {children}
-        </main>
+        <PublicPageLayout>{children}</PublicPageLayout>
         <footer className="border-t border-border">
           <div className="shell flex flex-wrap items-center justify-between gap-3 py-5 text-sm text-muted-foreground">
             <span>WishVow · Event wishlists</span>

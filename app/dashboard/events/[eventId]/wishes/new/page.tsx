@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { HostPageHeader } from "@/components/host/host-page-header";
 import { notFound } from "next/navigation";
 import { WishForm } from "@/components/wishlist/wish-form";
 import { requireHost } from "@/lib/auth";
@@ -18,14 +18,18 @@ export default async function NewWish({
   if (!result || result.event.status === "archived") notFound();
 
   return (
-    <section className="mx-auto max-w-3xl space-y-6 pt-8">
-      <Link
-        href={`/dashboard/events/${eventId}/wishes`}
-        className="text-sm font-semibold text-primary underline"
-      >
-        Back to wishlist
-      </Link>
-      <h1 className="text-4xl sm:text-5xl">New wish</h1>
+    <section className="mx-auto max-w-3xl space-y-6">
+      <HostPageHeader
+        title="New Wish"
+        ancestors={[
+          { href: `/dashboard/events/${eventId}`, label: result.event.title },
+        ]}
+        back={{
+          href: `/dashboard/events/${eventId}/wishes`,
+          label: "Back to wishlist",
+          text: "Wishlist",
+        }}
+      />
       <WishForm
         participants={result.participants}
         action={saveWishAction.bind(null, eventId, null)}

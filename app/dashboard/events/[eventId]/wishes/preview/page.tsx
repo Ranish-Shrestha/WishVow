@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { HostPageHeader } from "@/components/host/host-page-header";
 import { GuestWishlist } from "@/components/wishlist/guest-wishlist";
 import { requireHost } from "@/lib/auth";
 import { getDb } from "@/lib/db";
@@ -24,16 +24,16 @@ export default async function GuestPreview({
   const base = `/dashboard/events/${eventId}/wishes`;
 
   return (
-    <>
-      <div className="flex flex-wrap items-center justify-between gap-3 py-4 text-sm">
-        <Link
-          className="font-semibold text-primary underline"
-          href={`/dashboard/events/${eventId}`}
-        >
-          Back to event
-        </Link>
-        <p className="text-muted-foreground">Private host preview</p>
-      </div>
+    <div className="space-y-6">
+      <HostPageHeader
+        title="Private host preview"
+        back={{
+          href: `/dashboard/events/${eventId}`,
+          label: "Back to event",
+          text: event.title,
+        }}
+        preview
+      />
       <GuestWishlist
         event={{
           ...event,
@@ -47,6 +47,6 @@ export default async function GuestPreview({
         wishPath={(id) => `${base}/${id}/preview`}
         photoPath={(id) => `${base}/${id}`}
       />
-    </>
+    </div>
   );
 }

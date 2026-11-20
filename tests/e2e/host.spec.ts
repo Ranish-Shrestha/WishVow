@@ -93,6 +93,7 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
   await expect(page.getByLabel("Locale", { exact: true })).toHaveCount(0);
   const timeZone = page.getByRole("combobox", { name: "Time zone" });
   await expect(timeZone).toHaveValue("America/Toronto");
+  await expect(timeZone.locator("option:checked")).toHaveText("Toronto");
   await timeZone.evaluate((select) => {
     (select as HTMLSelectElement).add(new Option("Invalid", "America/Nowhere"));
   });
@@ -105,7 +106,7 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
   ).toBeVisible();
   await expect(page.getByLabel("Event title")).toHaveValue("Alex & Jules");
   await expect(page.getByLabel("Event type")).toHaveValue("birthday");
-  await timeZone.selectOption("Asia/Kathmandu");
+  await timeZone.selectOption({ label: "Kathmandu" });
   await page.getByLabel("Guest access").selectOption("passcode");
   await page.getByLabel("Event passcode").fill("only our guests");
   await page.getByLabel(/Allow consenting givers/).check();
@@ -119,12 +120,20 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
   const eventUrl = page.url();
 
   const participantForm = page.getByRole("form", { name: "New participant" });
+  await expect(participantForm).toBeHidden();
+  await page.locator('summary[aria-label="Add participant"]').click();
   await participantForm.getByLabel("Participant name").fill("Jules");
   await participantForm.getByLabel("Role label").fill("Partner");
   await participantForm
     .getByRole("button", { name: "Add participant" })
     .click();
   const editParticipant = page.getByRole("form", { name: "Edit Jules" });
+  const julesRow = page
+    .getByRole("list", { name: "Participants" })
+    .getByRole("listitem");
+  await expect(julesRow.getByText("Partner", { exact: true })).toBeVisible();
+  await expect(editParticipant).toBeHidden();
+  await page.locator('summary[aria-label="Edit Jules"]').click();
   await expect(editParticipant.getByLabel("Participant name")).toHaveValue(
     "Jules",
   );
@@ -132,7 +141,10 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
   await editParticipant
     .getByRole("button", { name: "Save participant" })
     .click();
-  await expect(editParticipant.getByText("Participant saved.")).toBeVisible();
+  await expect(editParticipant).toBeHidden();
+  await expect(
+    julesRow.getByText("Co-organizer", { exact: true }),
+  ).toBeVisible();
 
   await page.getByRole("link", { name: "Edit event" }).click();
   await expect(page.getByLabel("Locale", { exact: true })).toHaveCount(0);
@@ -348,6 +360,10 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
     await guestContext.close();
   }
 
+  await page
+    .getByRole("navigation", { name: "Main navigation" })
+    .locator("summary")
+    .click();
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/sign-in$/);
   await page.goto(eventUrl);
@@ -359,25 +375,37 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
   const resetMessage = await receivedMail(email, "Reset your WishVow password");
   const nextPassword = "updated test password for WishVow";
   await page.goto(mailLink(resetMessage.text));
+  const passwordHint = page.getByText("Use at least 12 characters.", {
+    exact: true,
+  });
+  await expect(passwordHint).toBeVisible();
   await page.getByLabel("New password", { exact: true }).fill(nextPassword);
+  await expect(passwordHint).toBeHidden();
   await page.getByLabel("Confirm new password").fill(mismatchedPassword);
+  await expect(page.getByText("The passwords must match.")).toBeVisible();
   await page.getByRole("button", { name: "Set new password" }).click();
   await expect(page.getByText("The passwords must match.")).toBeVisible();
   await page.getByLabel("Confirm new password").fill(nextPassword);
+  await expect(page.getByText("The passwords must match.")).toBeHidden();
   await page.getByRole("button", { name: "Set new password" }).click();
   await expect(page.getByText("Your password was updated.")).toBeVisible();
   await page.getByLabel("Email address").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(nextPassword);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByRole("heading", { name: "My events" })).toBeVisible();
-  await page.getByRole("link", { name: "Alex & Jules Anniversary" }).click();
+  await page
+    .getByRole("link", { name: "Alex & Jules Anniversary", exact: true })
+    .click({ position: { x: 16, y: 16 } });
 
   await page.getByRole("button", { name: "Archive event" }).click();
   await page.getByRole("button", { name: "Confirm archive" }).click();
   await expect(page.getByText("Archived · Unlisted link")).toBeVisible();
   await expect(page.getByLabel("Event share link")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Edit event" })).toHaveCount(0);
-  await expect(page.getByText("Jules · Co-organizer")).toBeVisible();
+  await expect(julesRow.getByText("Jules", { exact: true })).toBeVisible();
+  await expect(
+    julesRow.getByText("Co-organizer", { exact: true }),
+  ).toBeVisible();
   const overflows = await page.evaluate(
     () => document.documentElement.scrollWidth > window.innerWidth,
   );
