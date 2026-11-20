@@ -39,6 +39,7 @@ export default async function EditWish({
       <WishForm
         participants={result.participants}
         wish={fields}
+        cancelHref={base}
         action={saveWishAction.bind(null, eventId, wishId)}
         imageUrl={imageKey ? getImageUrl(`${base}/${wishId}`) : undefined}
       />

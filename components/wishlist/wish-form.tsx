@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   startTransition,
   useActionState,
@@ -107,11 +108,13 @@ export function WishForm({
   participants,
   wish,
   imageUrl,
+  cancelHref,
 }: {
   action: (state: FormState, form: FormData) => Promise<FormState>;
   participants: { id: string; displayName: string; roleLabel: string }[];
   wish?: EditableWish;
   imageUrl?: string;
+  cancelHref?: string;
 }) {
   const [state, dispatch, pending] = useActionState(action, {});
   const [type, setType] = useState<WishType>(wish?.type ?? "physical");
@@ -481,9 +484,21 @@ export function WishForm({
         </label>
       </section>
       <FormFeedback state={state} />
-      <Button type="submit" disabled={pending}>
-        {pending ? "Saving…" : wish ? "Save wish" : "Add wish"}
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button type="submit" disabled={pending}>
+          {pending ? "Saving…" : wish ? "Save wish" : "Add wish"}
+        </Button>
+        {cancelHref &&
+          (pending ? (
+            <Button type="button" variant="outline" disabled>
+              Cancel
+            </Button>
+          ) : (
+            <Button asChild variant="outline">
+              <Link href={cancelHref}>Cancel</Link>
+            </Button>
+          ))}
+      </div>
     </form>
   );
 }

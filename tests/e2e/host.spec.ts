@@ -203,6 +203,11 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
     "Japan honeymoon",
   );
   await fund.getByRole("link", { name: "Edit wish" }).click();
+  await page.getByLabel("Wish title").fill("Discard this edit");
+  await page.getByRole("link", { name: "Cancel", exact: true }).click();
+  await expect(fund).toBeVisible();
+  await fund.getByRole("link", { name: "Edit wish" }).click();
+  await expect(page.getByLabel("Wish title")).toHaveValue("Japan honeymoon");
   await page.getByLabel("Minimum pledge (optional)").fill("10");
   await page.getByRole("button", { name: "Save wish" }).click();
   await expect(
