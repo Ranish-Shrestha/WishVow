@@ -14,7 +14,10 @@ const password = z
   .min(minimumPasswordLength, passwordLengthHint)
   .max(128);
 
-export const signInSchema = z.object({ email, password });
+export const signInSchema = z.object({
+  email,
+  password: z.string().min(1).max(128),
+});
 export const passwordConfirmationSchema = z
   .object({
     password,

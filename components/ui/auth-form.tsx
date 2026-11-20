@@ -17,6 +17,8 @@ import { Field } from "./field";
 import { FormFeedback, type FormState } from "./form-feedback";
 import { PasswordInput } from "./password-input";
 
+const invalidCredentialsMessage = "Invalid email or password.";
+
 export function AuthForm({
   registering,
   notice,
@@ -62,10 +64,14 @@ export function AuthForm({
     const form = Object.fromEntries(new FormData(event.currentTarget));
     const input = (registering ? signUpSchema : signInSchema).safeParse(form);
     if (!input.success) {
-      setState({
-        error: "Check the highlighted fields.",
-        fields: z.flattenError(input.error).fieldErrors,
-      });
+      setState(
+        registering
+          ? {
+              error: "Check the highlighted fields.",
+              fields: z.flattenError(input.error).fieldErrors,
+            }
+          : { error: invalidCredentialsMessage },
+      );
       return;
     }
     setPasswordMismatch(false);
@@ -89,7 +95,7 @@ export function AuthForm({
                 ? "Verify your host email before signing in. You can request another link below."
                 : registering
                   ? "We couldn’t create your account. Check your details or try signing in."
-                  : "Check your email and password and try again.",
+                  : invalidCredentialsMessage,
         });
         return;
       }
@@ -160,7 +166,7 @@ export function AuthForm({
               name="password"
               autoComplete={registering ? "new-password" : "current-password"}
               required
-              minLength={minimumPasswordLength}
+              minLength={registering ? minimumPasswordLength : undefined}
               maxLength={128}
             />
           </Field>
