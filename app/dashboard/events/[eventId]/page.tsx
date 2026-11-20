@@ -10,6 +10,13 @@ import { getEvent } from "@/lib/db/events";
 import { eventTypeLabels } from "@/lib/event-types";
 import { eventIdSchema } from "@/lib/validation/events";
 
+const eventLinks = [
+  ["wishes", "Manage wishlist"],
+  ["invitations", "Invitations & RSVPs"],
+  ["commitments", "Commitments"],
+  ["edit", "Edit event"],
+] as const;
+
 export default async function EventOverview({
   params,
 }: {
@@ -21,6 +28,7 @@ export default async function EventOverview({
   const result = await getEvent(host.id, eventId);
   if (!result) notFound();
   const { event, role, participants } = result;
+  const eventPath = `/dashboard/events/${event.id}`;
   const archived = event.status === "archived";
   const privacy =
     event.privacy === "passcode" ? "Passcode protected" : "Unlisted link";
@@ -35,9 +43,10 @@ export default async function EventOverview({
           text: "My events",
         }}
         description={
-          <>
-            <p className="text-sm font-semibold text-primary capitalize">
-              {event.status} · {privacy}
+          <div className="space-y-2">
+            <p className="inline-block rounded-full bg-muted px-3 py-1 text-sm font-semibold text-primary">
+              <span className="capitalize">{event.status}</span>
+              {` · ${privacy}`}
             </p>
             <p>
               {[
@@ -48,37 +57,61 @@ export default async function EventOverview({
                 .filter(Boolean)
                 .join(" · ")}
             </p>
-          </>
-        }
-        actions={
-          <>
-            <Button asChild variant="outline">
-              <Link href={`/dashboard/events/${event.id}/wishes`}>
-                Manage wishlist
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href={"/dashboard/events/" + event.id + "/invitations"}>
-                Invitations &amp; RSVPs
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href={"/dashboard/events/" + event.id + "/commitments"}>
-                Commitments
-              </Link>
-            </Button>
-            {!archived && (
-              <Button asChild variant="outline">
-                <Link href={`/dashboard/events/${event.id}/edit`}>
-                  Edit event
-                </Link>
-              </Button>
-            )}
-          </>
+          </div>
         }
       />
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-        <section className="panel space-y-4">
+      <nav aria-label="Event management">
+        <ul className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
+          {eventLinks
+            .filter(([path]) => !archived || path !== "edit")
+            .map(([path, label]) => (
+              <li key={path} className="min-w-0">
+                <Link
+                  href={`${eventPath}/${path}`}
+                  className="flex h-full min-h-14 items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-muted sm:px-4"
+                >
+                  <span className="wrap-anywhere">{label}</span>
+                  <span aria-hidden="true" className="shrink-0">
+                    →
+                  </span>
+                </Link>
+              </li>
+            ))}
+        </ul>
+      </nav>
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+        <section className="panel min-w-0 space-y-3 p-4 sm:p-5">
+          <h2 className="text-2xl">Publishing & sharing</h2>
+          {event.status === "published" && (
+            <ShareLink
+              url={new URL(`/e/${event.slug}`, getAuthConfig().APP_URL).href}
+            />
+          )}
+          {event.status === "draft" && (
+            <p className="text-sm text-muted-foreground">
+              Add at least one visible wish, then publish to open the wishlist
+              to guests.
+            </p>
+          )}
+          {archived && (
+            <p className="text-sm text-muted-foreground">
+              This event is archived and its share link is inactive.
+            </p>
+          )}
+          {!archived && (
+            <Button variant="outline" asChild>
+              <Link href={`${eventPath}/wishes/preview`}>
+                Preview guest wishlist
+              </Link>
+            </Button>
+          )}
+          {event.status !== "archived" && role === "owner" && (
+            <div className="border-t border-border pt-3">
+              <LifecycleControls eventId={event.id} status={event.status} />
+            </div>
+          )}
+        </section>
+        <section className="panel min-w-0 space-y-3 p-4 sm:p-5">
           <h2 className="text-2xl">Wishlist owners</h2>
           <p className="rounded-lg bg-muted p-3 text-sm">
             <strong>Shared</strong> · For everyone on the event
@@ -110,55 +143,15 @@ export default async function EventOverview({
             </div>
           )}
         </section>
-        <aside className="space-y-5">
-          <section className="panel space-y-4">
-            <h2 className="text-2xl">Publishing & sharing</h2>
-            {event.status === "published" && (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  This link opens the guest wishlist.
-                </p>
-                <ShareLink
-                  url={
-                    new URL(`/e/${event.slug}`, getAuthConfig().APP_URL).href
-                  }
-                />
-              </>
-            )}
-            {event.status === "draft" && (
-              <p className="text-sm text-muted-foreground">
-                Add at least one visible wish, then publish to open the wishlist
-                to guests.
-              </p>
-            )}
-            {archived && (
-              <p className="text-sm text-muted-foreground">
-                This event is archived and its share link is inactive.
-              </p>
-            )}
-            {!archived && (
-              <Button variant="outline" asChild>
-                <Link
-                  href={"/dashboard/events/" + event.id + "/wishes/preview"}
-                >
-                  Preview guest wishlist
-                </Link>
-              </Button>
-            )}
-            {event.status !== "archived" && role === "owner" && (
-              <LifecycleControls eventId={event.id} status={event.status} />
-            )}
-          </section>
-          {event.story && (
-            <section className="panel space-y-3">
-              <h2 className="text-2xl">Event story</h2>
-              <p className="break-words whitespace-pre-wrap text-muted-foreground">
-                {event.story}
-              </p>
-            </section>
-          )}
-        </aside>
       </div>
+      {event.story && (
+        <section className="panel space-y-3 p-4 sm:p-5">
+          <h2 className="text-2xl">Event story</h2>
+          <p className="max-w-prose wrap-anywhere whitespace-pre-wrap text-muted-foreground">
+            {event.story}
+          </p>
+        </section>
+      )}
     </div>
   );
 }

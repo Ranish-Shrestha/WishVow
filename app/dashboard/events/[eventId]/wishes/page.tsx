@@ -53,59 +53,70 @@ export default async function HostWishlist({
           There are no active wishes yet.
         </p>
       )}
-      <ul className="space-y-3">
+      <ul className="grid gap-3">
         {active.map(({ wish, owner }, index) => (
-          <li key={wish.id} className="panel space-y-3">
-            <div className="flex flex-wrap justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="break-words text-2xl">{wish.title}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {[
-                    owner ?? "Shared",
-                    wishTypes.find(([value]) => value === wish.type)?.[1],
-                    wish.isVisible ? "Visible" : "Hidden",
-                  ].join(" · ")}
-                </p>
-                {wish.targetAmountMinor !== null && wish.currency && (
-                  <p className="text-sm text-muted-foreground">
-                    {displayMoney(
-                      Math.max(
-                        0,
-                        wish.targetAmountMinor -
-                          (totals.get(wish.id)?.amount ?? 0),
-                      ),
-                      wish.currency,
-                      access.event.locale,
-                    )}{" "}
-                    remaining to pledge
+          <li key={wish.id} className="panel grid gap-3 p-4 sm:p-5">
+            <div className="flex items-start gap-3">
+              <div className="min-w-0 flex-1">
+                <h2 className="wrap-anywhere text-xl sm:text-2xl">
+                  {wish.title}
+                </h2>
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                  <p className="wrap-anywhere">
+                    {owner ?? "Shared"} ·{" "}
+                    {wishTypes.find(([value]) => value === wish.type)?.[1]}
                   </p>
-                )}
-                {wish.quantityTotal !== null && (
-                  <p className="text-sm text-muted-foreground">
-                    {Math.max(
-                      0,
-                      wish.quantityTotal - (totals.get(wish.id)?.quantity ?? 0),
-                    )}{" "}
-                    of {wish.quantityTotal} available
-                  </p>
-                )}
-              </div>
-              {!!totals.get(wish.id)?.count && (
-                <p className="mt-1 text-sm font-semibold text-primary">
-                  {wish.currency && wish.type === "group_fund"
-                    ? displayMoney(
-                        totals.get(wish.id)!.amount,
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold">
+                    {wish.isVisible ? "Visible" : "Hidden"}
+                  </span>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm empty:hidden">
+                  {wish.targetAmountMinor !== null && wish.currency && (
+                    <p className="text-muted-foreground">
+                      {displayMoney(
+                        Math.max(
+                          0,
+                          wish.targetAmountMinor -
+                            (totals.get(wish.id)?.amount ?? 0),
+                        ),
                         wish.currency,
                         access.event.locale,
-                      ) + " pledged"
-                    : totals.get(wish.id)!.quantity +
-                      (wish.type === "service" || wish.type === "open_wish"
-                        ? " promised"
-                        : " reserved")}
-                </p>
-              )}
+                      )}{" "}
+                      remaining to pledge
+                    </p>
+                  )}
+                  {wish.quantityTotal !== null && (
+                    <p className="text-muted-foreground">
+                      {Math.max(
+                        0,
+                        wish.quantityTotal -
+                          (totals.get(wish.id)?.quantity ?? 0),
+                      )}{" "}
+                      of {wish.quantityTotal} available
+                    </p>
+                  )}
+                  {!!totals.get(wish.id)?.count && (
+                    <p className="font-semibold text-primary">
+                      {wish.currency && wish.type === "group_fund"
+                        ? displayMoney(
+                            totals.get(wish.id)!.amount,
+                            wish.currency,
+                            access.event.locale,
+                          ) + " pledged"
+                        : totals.get(wish.id)!.quantity +
+                          (wish.type === "service" || wish.type === "open_wish"
+                            ? " promised"
+                            : " reserved")}
+                    </p>
+                  )}
+                </div>
+              </div>
               {editable && (
-                <Button asChild variant="outline">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="shrink-0 whitespace-nowrap px-3 sm:px-4"
+                >
                   <Link href={`${base}/wishes/${wish.id}/edit`}>Edit wish</Link>
                 </Button>
               )}

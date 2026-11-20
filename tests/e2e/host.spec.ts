@@ -178,7 +178,7 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
   ).toHaveCount(0);
   await page.getByRole("link", { name: "New wish" }).click();
   await page.getByLabel("Wish title").fill("Ceramic tea set");
-  await page.getByLabel("Category").selectOption("home");
+  await page.getByLabel("Category", { exact: true }).selectOption("home");
   const png = await sharp({
     create: { width: 32, height: 24, channels: 3, background: "#c5ac8a" },
   })
@@ -191,6 +191,8 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
   await expect(
     page.getByRole("heading", { name: "Ceramic tea set" }),
   ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Move up" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Move down" })).toHaveCount(0);
   const giftEditPath = (await page
     .getByRole("link", { name: "Edit wish" })
     .getAttribute("href"))!;
@@ -199,11 +201,11 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
 
   await page.getByRole("link", { name: "New wish" }).click();
   await page.getByLabel("Wish title").fill("Japan honeymoon");
-  await page.getByLabel("Wish type").selectOption("group_fund");
+  await page.getByLabel("Wish type", { exact: true }).selectOption("group_fund");
   await page
     .getByLabel("Wishlist owner")
     .selectOption({ label: "Jules · Co-organizer" });
-  await page.getByLabel("Category").selectOption("travel");
+  await page.getByLabel("Category", { exact: true }).selectOption("travel");
   await page.getByLabel("Fund goal").fill("5000");
   await page.getByRole("button", { name: "Add wish" }).click();
   const fund = page
@@ -357,7 +359,7 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
 
     await page.getByRole("link", { name: "Edit event" }).click();
     await page.getByLabel("Event passcode").fill("updated invite code");
-    await page.getByRole("button", { name: "Save changes" }).click();
+    await page.getByRole("button", { name: "Update event" }).click();
     await expect(page.getByLabel("Event share link")).toBeVisible();
     await guest.reload();
     await expect(

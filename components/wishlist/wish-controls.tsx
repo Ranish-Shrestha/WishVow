@@ -22,8 +22,8 @@ export function WishControls({
   );
   const [confirm, setConfirm] = useState(false);
   return (
-    <form action={action} className="space-y-2">
-      <div className="flex flex-wrap gap-2">
+    <form action={action} className="border-t border-border pt-2">
+      <div className="flex flex-wrap items-center gap-x-2">
         {confirm ? (
           <>
             <Button
@@ -46,27 +46,34 @@ export function WishControls({
           </>
         ) : (
           <>
-            <Button
-              type="submit"
-              variant="outline"
-              name="intent"
-              value="up"
-              disabled={pending || !canMoveUp}
-            >
-              Move up
-            </Button>
-            <Button
-              type="submit"
-              variant="outline"
-              name="intent"
-              value="down"
-              disabled={pending || !canMoveDown}
-            >
-              Move down
-            </Button>
+            {(canMoveUp || canMoveDown) && (
+              <>
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  className="px-2 sm:px-3"
+                  name="intent"
+                  value="up"
+                  disabled={pending || !canMoveUp}
+                >
+                  Move up
+                </Button>
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  className="px-2 sm:px-3"
+                  name="intent"
+                  value="down"
+                  disabled={pending || !canMoveDown}
+                >
+                  Move down
+                </Button>
+              </>
+            )}
             <Button
               type="button"
-              variant="destructive"
+              variant="ghost"
+              className="px-2 text-destructive sm:px-3"
               onClick={() => setConfirm(true)}
               disabled={pending}
             >
