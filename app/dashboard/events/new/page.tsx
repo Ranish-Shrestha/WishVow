@@ -18,6 +18,7 @@ export default async function NewEvent() {
       />
       <EventForm
         canSetPrivacy
+        cancelHref="/dashboard"
         timeZones={eventTimeZones}
         action={saveEventAction.bind(null, null)}
       />

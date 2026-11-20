@@ -16,22 +16,23 @@ export default async function NewWish({
   if (!eventIdSchema.safeParse(eventId).success) notFound();
   const result = await getEvent(host.id, eventId);
   if (!result || result.event.status === "archived") notFound();
+  const eventPath = `/dashboard/events/${eventId}`;
+  const wishlistPath = `${eventPath}/wishes`;
 
   return (
     <section className="mx-auto max-w-3xl space-y-6">
       <HostPageHeader
         title="New Wish"
-        ancestors={[
-          { href: `/dashboard/events/${eventId}`, label: result.event.title },
-        ]}
+        ancestors={[{ href: eventPath, label: result.event.title }]}
         back={{
-          href: `/dashboard/events/${eventId}/wishes`,
+          href: wishlistPath,
           label: "Back to wishlist",
           text: "Wishlist",
         }}
       />
       <WishForm
         participants={result.participants}
+        cancelHref={wishlistPath}
         action={saveWishAction.bind(null, eventId, null)}
       />
     </section>

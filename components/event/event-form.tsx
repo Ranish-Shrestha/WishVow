@@ -6,9 +6,9 @@ import {
   useState,
   type FormEvent,
 } from "react";
-import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { FormFeedback, type FormState } from "@/components/ui/form-feedback";
+import { FormSubmitActions } from "@/components/ui/form-submit-actions";
 import { timeZoneOptions } from "@/lib/event-time-zones";
 import { eventTypeLabels, eventTypes } from "@/lib/event-types";
 import type { EventDetails, PrivacyInput } from "@/lib/validation/events";
@@ -20,11 +20,13 @@ export function EventForm({
   canSetPrivacy,
   timeZones,
   action,
+  cancelHref,
 }: {
   event?: Defaults;
   canSetPrivacy: boolean;
   timeZones: readonly string[];
   action: (previous: FormState, data: FormData) => Promise<FormState>;
+  cancelHref?: string;
 }) {
   const [state, run, pending] = useActionState(action, {});
   const [privacy, setPrivacy] = useState(event?.privacy ?? "unlisted");
@@ -182,9 +184,11 @@ export function EventForm({
         </section>
       )}
       <FormFeedback state={state} />
-      <Button type="submit" disabled={pending}>
-        {pending ? "Saving…" : event ? "Save changes" : "Create draft"}
-      </Button>
+      <FormSubmitActions
+        label={event ? "Update event" : "Create draft"}
+        pending={pending}
+        cancelHref={cancelHref}
+      />
     </form>
   );
 }

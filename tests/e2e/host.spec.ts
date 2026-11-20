@@ -147,13 +147,19 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
   ).toBeVisible();
 
   await page.getByRole("link", { name: "Edit event" }).click();
+  await page.getByLabel("Event title").fill("Discard this event edit");
+  await page.getByRole("link", { name: "Cancel", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Alex & Jules", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Edit event" }).click();
   await expect(page.getByLabel("Locale", { exact: true })).toHaveCount(0);
   await expect(timeZone).toHaveValue("Asia/Kathmandu");
   await expect(page.getByLabel("Event type")).toHaveValue("birthday");
   await page.getByLabel("Event type").selectOption({ label: "Anniversary" });
   await page.getByLabel("Event title").fill("Alex & Jules Anniversary");
   await expect(page.getByLabel("Event passcode")).toHaveValue("");
-  await page.getByRole("button", { name: "Save changes" }).click();
+  await page.getByRole("button", { name: "Update event" }).click();
   await expect(
     page.getByRole("heading", { name: "Alex & Jules Anniversary" }),
   ).toBeVisible();
@@ -164,6 +170,12 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
   ).toBeVisible();
 
   await page.getByRole("link", { name: "Manage wishlist" }).click();
+  await page.getByRole("link", { name: "New wish" }).click();
+  await page.getByLabel("Wish title").fill("Discard this new wish");
+  await page.getByRole("link", { name: "Cancel", exact: true }).click();
+  await expect(
+    page.getByText("Discard this new wish", { exact: true }),
+  ).toHaveCount(0);
   await page.getByRole("link", { name: "New wish" }).click();
   await page.getByLabel("Wish title").fill("Ceramic tea set");
   await page.getByLabel("Category").selectOption("home");
@@ -209,7 +221,7 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
   await fund.getByRole("link", { name: "Edit wish" }).click();
   await expect(page.getByLabel("Wish title")).toHaveValue("Japan honeymoon");
   await page.getByLabel("Minimum pledge (optional)").fill("10");
-  await page.getByRole("button", { name: "Save wish" }).click();
+  await page.getByRole("button", { name: "Update wish" }).click();
   await expect(
     page.getByRole("heading", { name: "Manage wishlist" }),
   ).toBeVisible();
@@ -355,7 +367,7 @@ test("hosts can sign in, configure and publish an event, and archive it", async 
 
     await page.getByRole("link", { name: "Edit event" }).click();
     await page.getByLabel("Guest access").selectOption("unlisted");
-    await page.getByRole("button", { name: "Save changes" }).click();
+    await page.getByRole("button", { name: "Update event" }).click();
     await expect(page.getByText("Published · Unlisted link")).toBeVisible();
     await guest.goto(share);
     await expect(

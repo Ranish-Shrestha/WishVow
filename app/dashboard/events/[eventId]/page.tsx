@@ -52,7 +52,7 @@ export default async function EventOverview({
         }
         actions={
           <>
-            <Button asChild>
+            <Button asChild variant="outline">
               <Link href={`/dashboard/events/${event.id}/wishes`}>
                 Manage wishlist
               </Link>

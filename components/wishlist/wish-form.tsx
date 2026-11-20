@@ -1,15 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import {
   startTransition,
   useActionState,
   useState,
   type FormEvent,
 } from "react";
-import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { FormFeedback, type FormState } from "@/components/ui/form-feedback";
+import { FormSubmitActions } from "@/components/ui/form-submit-actions";
 import { InfoPopover } from "@/components/ui/info-popover";
 import type { wishes } from "@/lib/db/schema";
 import { amountInput } from "@/lib/utils/money";
@@ -114,7 +113,7 @@ export function WishForm({
   participants: { id: string; displayName: string; roleLabel: string }[];
   wish?: EditableWish;
   imageUrl?: string;
-  cancelHref?: string;
+  cancelHref: string;
 }) {
   const [state, dispatch, pending] = useActionState(action, {});
   const [type, setType] = useState<WishType>(wish?.type ?? "physical");
@@ -484,21 +483,11 @@ export function WishForm({
         </label>
       </section>
       <FormFeedback state={state} />
-      <div className="flex flex-wrap gap-2">
-        <Button type="submit" disabled={pending}>
-          {pending ? "Saving…" : wish ? "Save wish" : "Add wish"}
-        </Button>
-        {cancelHref &&
-          (pending ? (
-            <Button type="button" variant="outline" disabled>
-              Cancel
-            </Button>
-          ) : (
-            <Button asChild variant="outline">
-              <Link href={cancelHref}>Cancel</Link>
-            </Button>
-          ))}
-      </div>
+      <FormSubmitActions
+        label={wish ? "Update wish" : "Add wish"}
+        pending={pending}
+        cancelHref={cancelHref}
+      />
     </form>
   );
 }

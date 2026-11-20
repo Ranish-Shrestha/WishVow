@@ -17,6 +17,7 @@ export default async function EditEvent({
   const result = await getEvent(host.id, eventId);
   if (!result || result.event.status === "archived") notFound();
   const { event, role } = result;
+  const eventPath = `/dashboard/events/${eventId}`;
   const defaults = {
     title: event.title,
     eventType: event.eventType,
@@ -33,7 +34,7 @@ export default async function EditEvent({
       <HostPageHeader
         title="Edit event"
         back={{
-          href: `/dashboard/events/${eventId}`,
+          href: eventPath,
           label: "Back to event",
           text: event.title,
         }}
@@ -42,6 +43,7 @@ export default async function EditEvent({
         event={defaults}
         canSetPrivacy={role === "owner"}
         timeZones={eventTimeZones}
+        cancelHref={eventPath}
         action={saveEventAction.bind(null, event.id)}
       />
     </section>
