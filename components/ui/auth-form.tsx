@@ -158,6 +158,17 @@ export function AuthForm({
             </Field>
           )}
           <FormFeedback state={state} />
+          {registering && state.success && (
+            <p className="text-sm text-muted-foreground">
+              Didn’t get an email?{" "}
+              <Link
+                href="/verify-host-email"
+                className="font-semibold text-primary underline"
+              >
+                Request a verification link
+              </Link>
+            </p>
+          )}
           <Button type="submit" disabled={pending} className="w-full">
             {pending
               ? "Please wait…"
