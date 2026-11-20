@@ -13,17 +13,15 @@ export interface StorageProvider {
 const webp = "image/webp";
 
 function vercelStorage(): StorageProvider {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (!token) throw new Error("Private Vercel Blob storage is not configured.");
   return {
     async uploadImage(key, data) {
-      await put(key, data, { access: "private", token, contentType: webp });
+      await put(key, data, { access: "private", contentType: webp });
     },
     async deleteImage(key) {
-      await del(key, { token });
+      await del(key);
     },
     async readImage(key) {
-      const result = await get(key, { access: "private", token });
+      const result = await get(key, { access: "private" });
       return result?.statusCode === 200 ? result.stream : null;
     },
   };
@@ -56,7 +54,17 @@ export async function uploadImage(
   namespace: "wishes" | "invitations" = "wishes",
 ) {
   const key = imageKey(`${namespace}/${eventId}/${randomUUID()}.webp`);
-  await (await provider()).uploadImage(key, data);
+  try {
+    await (await provider()).uploadImage(key, data);
+  } catch (error) {
+    console.error("WishVow image storage upload failed.", {
+      namespace,
+      errorType: error instanceof Error ? error.constructor.name : "Unknown",
+      hasBlobStoreId: Boolean(process.env.BLOB_STORE_ID?.trim()),
+      hasBlobReadWriteToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim()),
+    });
+    throw error;
+  }
   return key;
 }
 

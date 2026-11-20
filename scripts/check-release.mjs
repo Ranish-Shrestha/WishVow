@@ -53,9 +53,9 @@ const checks = {
     (env.STORAGE_PROVIDER || "vercel_blob") === "vercel_blob",
     "Use the private Vercel Blob adapter.",
   ],
-  BLOB_READ_WRITE_TOKEN: [
-    !!env.BLOB_READ_WRITE_TOKEN?.trim(),
-    "Set the private preview or production Blob token.",
+  "BLOB_STORE_ID / BLOB_READ_WRITE_TOKEN": [
+    !!(env.BLOB_STORE_ID?.trim() || env.BLOB_READ_WRITE_TOKEN?.trim()),
+    "Connect the private Blob store with Vercel OIDC or set its read-write token.",
   ],
   EMAIL_PROVIDER: [
     (env.EMAIL_PROVIDER || "resend") === "resend",
